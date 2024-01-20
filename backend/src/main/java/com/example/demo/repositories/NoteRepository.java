@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface NoteRepository extends JpaRepository<Note, Long> {
         List<Note> findByTitleContaining(String titleFragment);
+        List<Note> findByIsPublicTrue();
 }

@@ -5,8 +5,10 @@ import com.example.demo.other.AuthenticationResponse;
 import com.example.demo.other.RegisterRequest;
 import com.example.demo.other.ServiceResponse;
 import com.example.demo.services.AuthenticationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,8 +22,12 @@ public class AuthenticationController {
     @PostMapping("/register")
     @CrossOrigin(origins = "http://localhost:4200")
     public ResponseEntity<ServiceResponse<AuthenticationResponse>> register(
-            @RequestBody RegisterRequest request
+            @Valid @RequestBody RegisterRequest request,
+            BindingResult bindingResult
     ){
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(new ServiceResponse<>(null, false, "Bad data"));
+        }
         var response = service.register(request);
         if (response != null){
             return ResponseEntity.ok(new ServiceResponse<>(response, true, "User registered"));

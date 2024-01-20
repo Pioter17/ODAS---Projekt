@@ -25,8 +25,6 @@ public class User implements UserDetails {
     @GeneratedValue
     private Integer id;
     @Getter
-    private String email;
-    @Getter
     private String name;
     private String password;
 
@@ -40,10 +38,6 @@ public class User implements UserDetails {
     public User(String name, String passwd) {
         this.name = name;
         this.password = password;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
     public void setName(String name) {
         this.name = name;

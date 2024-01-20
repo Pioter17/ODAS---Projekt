@@ -1,112 +1,149 @@
 package com.example.demo.controllers;
 
-import com.example.demo.dtos.MovieDTO;
+import com.example.demo.dtos.NoteDTO;
 import com.example.demo.models.Note;
+import com.example.demo.models.User;
 import com.example.demo.other.ServiceResponse;
 import com.example.demo.repositories.NoteRepository;
 import com.example.demo.repositories.UserRepository;
-import com.example.demo.services.MovieDTOConverterService;
-import com.example.demo.services.NoteService;
+import com.example.demo.services.*;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/notes")
 @CrossOrigin(origins = "http://localhost:4200")
 public class NoteController {
 
-        private final NoteRepository noteRepository;
-        private final UserRepository userRepository;
+    private final NoteRepository noteRepository;
+    private final UserRepository userRepository;
+    private final NoteService noteService;
+    private final NoteDTOConverterService noteDTOConverterService;
+    private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
+    private final CryptoService cryptoService;
 
-        private final NoteService noteService;
-        private final MovieDTOConverterService movieDTOConverterService;
-
-        @Autowired
-        public NoteController(NoteRepository noteRepository, UserRepository userRepository, NoteService noteService, MovieDTOConverterService movieDTOConverterService) {
-            this.noteRepository = noteRepository;
-            this.userRepository = userRepository;
-            this.noteService = noteService;
-            this.movieDTOConverterService = movieDTOConverterService;
-        }
-
-        // Endpoint do pobierania wszystkich notatek (publicznych)
-        @GetMapping
-        @CrossOrigin(origins = "http://localhost:4200")
-        public List<Note> getAllMovies() {
-            return noteRepository.findAll();
-        }
-
-        // Endpoint do dodawania nowego filmu
-        @PostMapping
-        @CrossOrigin(origins = "http://localhost:4200")
-        public ServiceResponse<Movie> addNote(@RequestBody MovieDTO movieDTO) {
-            Movie movie;
-            try{
-                movie = this.movieDTOConverterService.convert(movieDTO);
-            } catch (Exception e) {
-                return new ServiceResponse<Movie>(null,false,"Cannot parse item");
-            }
-            if (movie == null || movie.getDirector() == null || movie.getRating() == null || movie.getName() == null || movie.getLength() == null) {
-                return new ServiceResponse<>(null, false, "Body is missing");
-            }
-            Movie movieToAdd = new Movie(movie.getName(), movie.getDirector(), movie.getProducer(), movie.getRating(), movie.getLength());
-            return movieService.addMovie(movieToAdd);
-        }
-
-        // Endpoint do aktualizacji filmu po ID
-        @PutMapping("/{id}")
-        @CrossOrigin(origins = "http://localhost:4200")
-        public ServiceResponse<Movie> updateMovie(@PathVariable Long id, @RequestBody MovieDTO movieDTO) {
-            Movie movie;
-            try{
-                movie = this.movieDTOConverterService.convert(movieDTO);
-            } catch (Exception e) {
-                return new ServiceResponse<Movie>(null,false,"Cannot parse item");
-            }
-            if (movie == null || movie.getDirector() == null || movie.getRating() == null || movie.getName() == null || movie.getLength() == null) {
-                return new ServiceResponse<>(null, false, "Body is missing");
-            }
-            Movie movieToUpdate = new Movie(id, movie.getName(), movie.getDirector(), movie.getProducer(), movie.getRating(), movie.getLength());
-
-            movieRepository.save(movieToUpdate);
-            return new ServiceResponse<Movie>(movie, true, "Movie updated");
-        }
-
-        // Endpoint do usuwania filmu po ID
-        @DeleteMapping("/{id}")
-        @CrossOrigin(origins = "http://localhost:4200")
-        public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {
-            Optional<Movie> optionalMovie = movieRepository.findById(id);
-            if (optionalMovie.isPresent()) {
-                Movie movie = optionalMovie.get();
-                Director director = movie.getDirector();
-                if (director != null) {
-                    director.getMovies().remove(movie);
-                    directorRepository.save(director);
-                }
-                movieRepository.deleteById(id);
-                return ResponseEntity.noContent().build();
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        }
-
-        @ExceptionHandler(MethodArgumentNotValidException.class)
-        public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-            Map<String, String> errors = new HashMap<>();
-            ex.getBindingResult().getAllErrors().forEach(error -> {
-                String fieldName = ((FieldError) error).getField();
-                String errorMessage = error.getDefaultMessage();
-                errors.put(fieldName, errorMessage);
-            });
-            return ResponseEntity.badRequest().body(errors);
-        }
+    @Autowired
+    public NoteController(
+            NoteRepository noteRepository,
+            UserRepository userRepository,
+            NoteService noteService,
+            NoteDTOConverterService noteDTOConverterService,
+            JwtService jwtservice,
+            UserDetailsService userDetailsService,
+            CryptoService cryptoService
+    ) {
+        this.noteRepository = noteRepository;
+        this.userRepository = userRepository;
+        this.noteService = noteService;
+        this.noteDTOConverterService = noteDTOConverterService;
+        this.jwtService = jwtservice;
+        this.userDetailsService = userDetailsService;
+        this.cryptoService = cryptoService;
     }
 
+    // Endpoint do pobierania wszystkich notatek (publicznych)
+    @GetMapping
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ServiceResponse<List<NoteDTO>> getPublicNotes() {
+         List<Note> list = noteRepository.findByIsPublicTrue();
+         List<NoteDTO> finalList = new ArrayList<>();
+         list.forEach(note -> finalList.add(noteDTOConverterService.convertToNoteDTO(note)));
+         return new ServiceResponse<>(finalList, true, "All public notes");
+    }
+
+    @GetMapping("/user")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ServiceResponse<List<Note>> getUserNotes(HttpServletRequest request){
+        Optional<User> owner;
+
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String jwt = authHeader.substring(7);
+            String userName = jwtService.extractUsername(jwt);
+            if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    owner = userRepository.findByName(userName);
+                    if (owner.isEmpty()){
+                        return new ServiceResponse<>(null, false, "Error during getting user notes occured");
+                    }
+                    List<Note> userNotes = owner.get().getNotes();
+                    return new ServiceResponse<>(userNotes, true, "All user notes");
+                }
+            }
+        }
+        return new ServiceResponse<>(null, false, "Error during getting user notes occured");
+    }
+
+    @GetMapping("/{id}")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ServiceResponse<NoteDTO> decryptUserNote(@PathVariable Long id, @RequestBody String notePassword, HttpServletRequest request){
+        Optional<User> owner;
+        Optional<Note> note;
+
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String jwt = authHeader.substring(7);
+            String userName = jwtService.extractUsername(jwt);
+            if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    owner = userRepository.findByName(userName);
+                    note = noteRepository.findById(id);
+                    if (owner.isEmpty() || note.isEmpty()){
+                        return new ServiceResponse<>(null, false, "Error during decrypting note occured");
+                    }
+                    Note foundNote = note.get();
+                    if (foundNote.getOwner() == owner.get()){
+                        String decryptedNote = cryptoService.decrypt(foundNote.getContent(), notePassword);
+                        NoteDTO noteResponse = new NoteDTO(foundNote.getTitle(), decryptedNote, foundNote.getIsPublic(), foundNote.getPassword());
+                        return new ServiceResponse<>(noteResponse, true, "Decrypted note");
+                    }
+                }
+            }
+        }
+        return new ServiceResponse<>(null, false, "Error during decrypting note occured");
+    }
+
+    // Endpoint do dodawania nowej notatki
+    @PostMapping
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ServiceResponse<Note> addNote(@RequestBody NoteDTO noteDTO, HttpServletRequest request) {
+        Optional<User> owner;
+
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String jwt = authHeader.substring(7);
+            String userName = jwtService.extractUsername(jwt);
+            if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    owner = userRepository.findByName(userName);
+                    if (owner.isEmpty()){
+                        return new ServiceResponse<>(null, false, "Error during adding note occured");
+                    }
+                    Note note;
+                    try{
+                        note = this.noteDTOConverterService.convertToNote(noteDTO, owner.get().getId());
+                    } catch (Exception e) {
+                        return new ServiceResponse<>(null,false,"Cannot parse item");
+                    }
+                    if (note == null || note.getOwner() == null || note.getTitle() == null || note.getContent() == null || note.getIsPublic() == null || note.getPassword() == null) {
+                        return new ServiceResponse<>(null, false, "Body is missing");
+                    }
+                    ServiceResponse<Note> response = noteService.addNote(note);
+                    return response;
+                }
+            }
+        }
+        return new ServiceResponse<>(null, false, "Error during adding note occured");
+    }
 }
+

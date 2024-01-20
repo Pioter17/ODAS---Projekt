@@ -49,7 +49,7 @@ public class AppConfig {
     }
 
     @Bean
-    CommandLineRunner commandLineRunner(MovieRepository movieRepository, AuthenticationService service) {
+    CommandLineRunner commandLineRunner(AuthenticationService service) {
         return args -> {
             var admin = RegisterRequest.builder()
                     .name("admin")
