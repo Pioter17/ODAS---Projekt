@@ -1,1 +1,21 @@
-<p>login works!</p>,
+<form
+    [formGroup]="form"
+>
+    <label> Nazwa </label>
+    <input
+        formControlName="name"
+        type="text"
+    >
+    <label> Hasło </label>
+    <input
+        formControlName="password"
+        type="password"
+    >
+    <button class="btn btn-primary" (click)="login()">
+        Zaloguj
+    </button>
+    <div id="buttonDiv"></div>
+    <a href="auth/register">
+        Nie masz konta? Zarejestruj się!
+    </a>
+</form>

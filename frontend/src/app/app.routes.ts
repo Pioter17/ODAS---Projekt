@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AppComponent } from './app.component';
 import { HomeComponent } from '@pages/home/home.component';
+import { AuthorizationGuardGuard } from '@core/guards/authorization.guard';
 
 export const routes: Routes = [
     {
@@ -15,7 +16,7 @@ export const routes: Routes = [
             {
                 path: 'home',
                 component: HomeComponent,
-                // canActivate: 
+                canActivate: [AuthorizationGuardGuard]
             }
         ]
     },

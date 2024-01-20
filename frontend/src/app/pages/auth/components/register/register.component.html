@@ -1,1 +1,25 @@
-<p>register works!</p>,
+<form
+    [formGroup]="form"
+>
+    <label> Nazwa</label>
+    <input
+        formControlName="name"
+        type="text"
+    >
+    <label> Hasło </label>
+    <input
+        formControlName="password"
+        type="password"
+    >
+    <label> Powtórz hasło </label>
+    <input
+        formControlName="repeatedPassword"
+        type="password"
+    >
+    <button class="btn btn-primary" (click)="register()">
+        Zarejestruj
+    </button>
+    <a href="auth/login">
+        Masz już konto? Zaloguj się!
+    </a>
+</form>
