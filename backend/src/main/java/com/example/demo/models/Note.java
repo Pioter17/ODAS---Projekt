@@ -1,5 +1,6 @@
 package com.example.demo.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,6 +31,8 @@ public class Note {
         private Boolean isPublic;
 
         private String password;
+        @JsonIgnore
+        private byte[] iv;
 
         public Note(User owner, String title, String content, Boolean isPublic, String password) {
                 this.owner = owner;

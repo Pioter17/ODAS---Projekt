@@ -26,6 +26,7 @@ import { LoginFormCreatorService } from '@pages/auth/services/login-form-creator
 })
 export class LoginComponent implements OnInit{   
   form: FormGroup;
+  error: string = "";
 
   formCreator = inject(LoginFormCreatorService);
   authService = inject(AuthService);
@@ -40,6 +41,9 @@ export class LoginComponent implements OnInit{
     let user : AuthenticationUserLoginData = this.form.value;
     this.authService.login(user).subscribe(
       (res : ServiceResponse<AuthenticationResponse>) => {
+        if(!res.isSuccess){
+          this.error = res.message;
+        }
         this.userService.setUserToken(res.data.token);
         console.log(this.userService.getUserToken());
         this.router.navigateByUrl('home');

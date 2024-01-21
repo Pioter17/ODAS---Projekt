@@ -53,7 +53,8 @@ public class AppConfig {
         return args -> {
             var admin = RegisterRequest.builder()
                     .name("admin")
-                    .password("admin")
+                    .password("Admin12$")
+                    .repeatedPassword("Admin12$")
                     .role(ADMIN)
                     .build();
             service.register(admin);

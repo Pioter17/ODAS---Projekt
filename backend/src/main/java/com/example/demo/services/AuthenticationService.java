@@ -2,14 +2,13 @@ package com.example.demo.services;
 
 
 import com.example.demo.models.User;
-import com.example.demo.other.AuthenticationRequest;
-import com.example.demo.other.AuthenticationResponse;
-import com.example.demo.other.RegisterRequest;
-import com.example.demo.other.Role;
+import com.example.demo.other.*;
 import com.example.demo.repositories.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,10 +21,11 @@ public class AuthenticationService {
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final LoginAttemptService loginAttemptService;
     private final AuthenticationManager authenticationManager;
 
 
-    public AuthenticationResponse register(RegisterRequest request) {
+    public ServiceResponse<Boolean> register(RegisterRequest request) {
         if (!Objects.equals(request.getPassword(), request.getRepeatedPassword())){
             return null;
         }
@@ -36,28 +36,37 @@ public class AuthenticationService {
                 .build();
 
         if (repository.findByName(user.getUsername()).isPresent()){
-            return null;
+            return new ServiceResponse<>(false, false, "");
         }
 
         repository.save(user);
-        var jwtToken = jwtService.generateToken(user);
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .build();
+        return new ServiceResponse<>(true, true, "Zarejestrowano");
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getName(),
-                        request.getPassword()
-                )
-        );
-        var user = repository.findByName(request.getName())
-                .orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
-        return AuthenticationResponse.builder()
+    public ServiceResponse<AuthenticationResponse> authenticate(AuthenticationRequest Loginrequest, HttpServletRequest request) {
+        String ipAddress = loginAttemptService.getClientIp(request);
+        loginAttemptService.loginAttempt(ipAddress);
+        if (loginAttemptService.isBlocked(ipAddress)){
+           return new ServiceResponse<>(null, false, "Przekroczono limit prób, spróbuj za tydzień");
+        }
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            Loginrequest.getName(),
+                            Loginrequest.getPassword()
+                    )
+            );
+        } catch (AuthenticationException e) {
+            return new ServiceResponse<>(null, false, "Złe hasło lub login");
+        }
+        var user = repository.findByName(Loginrequest.getName());
+        if (user.isEmpty()){
+            return new ServiceResponse<>(null, false, "Złe hasło lub login");
+        }
+        var jwtToken = jwtService.generateToken(user.get());
+        AuthenticationResponse response = AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
+        return new ServiceResponse<>(response, true, "Token");
     }
 }

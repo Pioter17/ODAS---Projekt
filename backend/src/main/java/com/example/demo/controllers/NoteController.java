@@ -27,7 +27,6 @@ public class NoteController {
     private final NoteDTOConverterService noteDTOConverterService;
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
-    private final CryptoService cryptoService;
 
     @Autowired
     public NoteController(
@@ -36,8 +35,7 @@ public class NoteController {
             NoteService noteService,
             NoteDTOConverterService noteDTOConverterService,
             JwtService jwtservice,
-            UserDetailsService userDetailsService,
-            CryptoService cryptoService
+            UserDetailsService userDetailsService
     ) {
         this.noteRepository = noteRepository;
         this.userRepository = userRepository;
@@ -45,7 +43,6 @@ public class NoteController {
         this.noteDTOConverterService = noteDTOConverterService;
         this.jwtService = jwtservice;
         this.userDetailsService = userDetailsService;
-        this.cryptoService = cryptoService;
     }
 
     // Endpoint do pobierania wszystkich notatek (publicznych)
@@ -101,9 +98,8 @@ public class NoteController {
                         return new ServiceResponse<>(null, false, "Error during decrypting note occured");
                     }
                     Note foundNote = note.get();
-                    if (foundNote.getOwner() == owner.get()){
-                        String decryptedNote = cryptoService.decrypt(foundNote.getContent(), notePassword);
-                        NoteDTO noteResponse = new NoteDTO(foundNote.getTitle(), decryptedNote, foundNote.getIsPublic(), foundNote.getPassword());
+                    if (foundNote.getOwner() == owner.get()  && Objects.equals(foundNote.getPassword(), notePassword)){
+                        NoteDTO noteResponse = noteService.decrypt(foundNote);
                         return new ServiceResponse<>(noteResponse, true, "Decrypted note");
                     }
                 }

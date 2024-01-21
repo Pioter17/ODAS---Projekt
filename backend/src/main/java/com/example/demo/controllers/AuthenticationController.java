@@ -5,6 +5,7 @@ import com.example.demo.other.AuthenticationResponse;
 import com.example.demo.other.RegisterRequest;
 import com.example.demo.other.ServiceResponse;
 import com.example.demo.services.AuthenticationService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,31 +22,32 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     @CrossOrigin(origins = "http://localhost:4200")
-    public ResponseEntity<ServiceResponse<AuthenticationResponse>> register(
+    public ResponseEntity<ServiceResponse<Boolean>> register(
             @Valid @RequestBody RegisterRequest request,
             BindingResult bindingResult
     ){
         if (bindingResult.hasErrors()) {
-            return ResponseEntity.badRequest().body(new ServiceResponse<>(null, false, "Bad data"));
+            return ResponseEntity.badRequest().body(new ServiceResponse<>(false, false, "Bad data"));
         }
         var response = service.register(request);
         if (response != null){
-            return ResponseEntity.ok(new ServiceResponse<>(response, true, "User registered"));
+            return ResponseEntity.ok(response);
         } else {
-            return ResponseEntity.ok(new ServiceResponse<>(null, false, "Error occured"));
+            return ResponseEntity.badRequest().body(new ServiceResponse<>(false, false, "Error occured"));
         }
     }
 
     @PostMapping("/login")
     @CrossOrigin(origins = "http://localhost:4200")
     public ResponseEntity<ServiceResponse<AuthenticationResponse>> authenticate(
-            @RequestBody AuthenticationRequest request
+            @RequestBody AuthenticationRequest loginRequest,
+            HttpServletRequest request
     ){
-        var response = service.authenticate(request);
-        if (response != null){
-            return ResponseEntity.ok(new ServiceResponse<>(response, true, "User authenticated"));
+        var response = service.authenticate(loginRequest, request);
+        if (response.data != null){
+            return ResponseEntity.ok(response);
         } else {
-            return ResponseEntity.ok(new ServiceResponse<>(null, false, "Error occured"));
+            return ResponseEntity.badRequest().body(response);
         }
     }
 }

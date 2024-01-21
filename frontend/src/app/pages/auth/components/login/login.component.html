@@ -18,4 +18,7 @@
     <a href="auth/register">
         Nie masz konta? Zarejestruj się!
     </a>
+    @if (error != "") {
+        <span>{{error}}</span>
+    }
 </form>

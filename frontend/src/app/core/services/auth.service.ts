@@ -21,8 +21,15 @@ export class AuthService {
 
   login(loginData: AuthenticationUserLoginData): Observable<ServiceResponse<AuthenticationResponse>> {
     return this.http.post<ServiceResponse<AuthenticationResponse>>(`${ApiRoutes.API_BASE_PATH}${ApiRoutes.AUTH}${ApiRoutes.LOGIN}`, loginData).pipe(
-      catchError(() => of({ data: {token: null}, isSuccess: false, message: ""})),
-    )
+      catchError(error => {
+        let errorMessage = "Błąd logowania"; // Domyślna wiadomość
+  
+        if (error.error && error.error.message) {
+          errorMessage = error.error.message;
+        }
+  
+        return of({ data: { token: null }, isSuccess: false, message: errorMessage });
+      }))
   }
 
   logout(): Observable<boolean> {
