@@ -31,8 +31,10 @@ public class AuthenticationController {
         }
         var response = service.register(request);
         if (response != null){
+            service.waitSomeTime();
             return ResponseEntity.ok(response);
         } else {
+            service.waitSomeTime();
             return ResponseEntity.badRequest().body(new ServiceResponse<>(false, false, "Error occured"));
         }
     }
@@ -45,8 +47,10 @@ public class AuthenticationController {
     ){
         var response = service.authenticate(loginRequest, request);
         if (response.data != null){
+            service.waitSomeTime();
             return ResponseEntity.ok(response);
         } else {
+            service.waitSomeTime();
             return ResponseEntity.badRequest().body(response);
         }
     }

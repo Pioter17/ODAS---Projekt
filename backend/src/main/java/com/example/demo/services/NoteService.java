@@ -13,8 +13,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.util.Base64;
-import java.util.Optional;
+import java.util.*;
 
 import org.springframework.stereotype.Service;
 
@@ -25,15 +24,27 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 
 @Service
 public class NoteService {
     private final NoteRepository noteRepository;
+    private final NoteDTOConverterService noteDTOConverterService;
     private static final String ALGORITHM = "AES/CBC/PKCS5Padding";
 
     @Autowired
-    public NoteService(NoteRepository noteRepository) {
+    public NoteService(NoteRepository noteRepository, NoteDTOConverterService noteDTOConverterService) {
         this.noteRepository = noteRepository;
+        this.noteDTOConverterService = noteDTOConverterService;
+    }
+
+    public List<NoteDTO> getAllPublic() {
+        List<Note> list = noteRepository.findByIsPublicTrue();
+        List<NoteDTO> finalList = new ArrayList<>();
+        list.forEach(note -> finalList.add(noteDTOConverterService.convertToNoteDTO(note)));
+        finalList.forEach(noteDTO -> noteDTO.setContent(sanitizeHtml(noteDTO.getContent())));
+        return finalList;
     }
 
     public ServiceResponse<Note> addNote(Note note) {
@@ -46,9 +57,11 @@ public class NoteService {
         try {
             if (note.getIsPublic()){
                 note.setIv(null);
+                note.setContent(sanitizeHtml(note.getContent()));
                 noteRepository.save(note);
                 return new ServiceResponse<>(note, true, "Note added");
             } else {
+                note.setContent(sanitizeHtml(note.getContent()));
                 Note newNote = encryptNoteContent(note);
                 if (newNote != null){
                     noteRepository.save(newNote);
@@ -106,5 +119,16 @@ public class NoteService {
         byte[] iv = new byte[16];
         new SecureRandom().nextBytes(iv);
         return new IvParameterSpec(iv);
+    }
+
+    private String sanitizeHtml(String input) {
+        Whitelist whitelist = Whitelist.basicWithImages();
+        whitelist.addTags("b", "i", "h1", "h2", "h3", "h4", "h5", "img", "a");
+        whitelist.addAttributes("a", "href");
+        whitelist.addAttributes("img", "src");
+
+        String cleanedHtml = Jsoup.clean(input, whitelist);
+
+        return cleanedHtml;
     }
 }

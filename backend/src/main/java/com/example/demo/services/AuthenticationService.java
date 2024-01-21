@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -68,5 +69,15 @@ public class AuthenticationService {
                 .token(jwtToken)
                 .build();
         return new ServiceResponse<>(response, true, "Token");
+    }
+
+    public void waitSomeTime() {
+        Random random = new Random();
+        double randomValue = 0.5 + (1.5 - 0.5) * random.nextInt();
+        try {
+            Thread.sleep((long) (randomValue * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }

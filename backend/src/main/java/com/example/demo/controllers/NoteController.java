@@ -49,10 +49,8 @@ public class NoteController {
     @GetMapping
     @CrossOrigin(origins = "http://localhost:4200")
     public ServiceResponse<List<NoteDTO>> getPublicNotes() {
-         List<Note> list = noteRepository.findByIsPublicTrue();
-         List<NoteDTO> finalList = new ArrayList<>();
-         list.forEach(note -> finalList.add(noteDTOConverterService.convertToNoteDTO(note)));
-         return new ServiceResponse<>(finalList, true, "All public notes");
+        List<NoteDTO> finalList = noteService.getAllPublic();
+        return new ServiceResponse<>(finalList, true, "All public notes");
     }
 
     @GetMapping("/user")
