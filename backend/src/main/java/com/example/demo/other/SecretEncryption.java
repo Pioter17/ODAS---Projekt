@@ -15,7 +15,7 @@ import java.util.Random;
 public class SecretEncryption {
     private static final String ALGORITHM = "AES";
     private static final String TRANSFORMATION = "AES/ECB/PKCS5PADDING";
-    private static final String SECRET_KEY="43tlkhHGadsgTtAGYy546aea2452GRHA09aaf2FvbbHNGFXa2144";
+    private static final String SECRET_KEY="43tlkhHGadsgTtAGYy546ae2452GHA09aaf2FvbbHNGFXa2144gsy34JFdfdrY45";
 
     public static String encrypt(String data) throws Exception {
         Cipher cipher = Cipher.getInstance(TRANSFORMATION);

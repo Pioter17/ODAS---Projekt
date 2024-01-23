@@ -32,7 +32,7 @@ public class LoginAttemptService {
                 });
     }
 
-    public void loginAttempt(String ipAddress) {
+    public void loginFailAttempt(String ipAddress) {
         try {
             int attempts = loginAttemptsCache.get(ipAddress) + 1;
             loginAttemptsCache.put(ipAddress, attempts);

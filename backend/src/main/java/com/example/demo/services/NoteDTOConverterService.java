@@ -22,7 +22,7 @@ public class NoteDTOConverterService {
     }
 
     public NoteDTO convertToNoteDTO(Note note) {
-        return new NoteDTO(note.getTitle(), note.getContent(), null, null);
+        return new NoteDTO(note.getTitle(), note.getContent(), note.getIsPublic(), null);
     }
 
     public Note convertToNote(NoteDTO noteDTO, Integer ownerId) {
@@ -30,7 +30,7 @@ public class NoteDTOConverterService {
         if(owner.isEmpty()){
             throw new IllegalArgumentException("Error occured");
         }
-        Note note = new Note(owner.get(), noteDTO.getTitle(), noteDTO.getContent(), noteDTO.getIsPublic(), noteDTO.getPassword());
+        Note note = new Note(owner.get(), noteDTO.getTitle(), noteDTO.getContent(), noteDTO.getIsPublic());
         return note;
     }
 

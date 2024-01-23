@@ -8,6 +8,7 @@ import com.example.demo.repositories.NoteRepository;
 import com.example.demo.repositories.UserRepository;
 import com.example.demo.services.*;
 import jakarta.servlet.http.HttpServletRequest;
+import org.checkerframework.checker.units.qual.N;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,7 +23,6 @@ import java.util.*;
 public class NoteController {
 
     private final NoteRepository noteRepository;
-    private final UserRepository userRepository;
     private final NoteService noteService;
     private final NoteDTOConverterService noteDTOConverterService;
     private final JwtService jwtService;
@@ -31,14 +31,12 @@ public class NoteController {
     @Autowired
     public NoteController(
             NoteRepository noteRepository,
-            UserRepository userRepository,
             NoteService noteService,
             NoteDTOConverterService noteDTOConverterService,
             JwtService jwtservice,
             UserDetailsService userDetailsService
     ) {
         this.noteRepository = noteRepository;
-        this.userRepository = userRepository;
         this.noteService = noteService;
         this.noteDTOConverterService = noteDTOConverterService;
         this.jwtService = jwtservice;
@@ -53,23 +51,28 @@ public class NoteController {
         return new ServiceResponse<>(finalList, true, "All public notes");
     }
 
+    @GetMapping("/{id}")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ServiceResponse<Note> getNoteById(@PathVariable Long id) {
+        Note note = noteService.getById(id);
+        if (note == null){
+            return new ServiceResponse<>(null, false, "Error occured");
+        }
+        return new ServiceResponse<>(note, true, "All public notes");
+    }
+
     @GetMapping("/user")
     @CrossOrigin(origins = "http://localhost:4200")
     public ServiceResponse<List<Note>> getUserNotes(HttpServletRequest request){
-        Optional<User> owner;
 
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String jwt = authHeader.substring(7);
             String userName = jwtService.extractUsername(jwt);
-            if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);
-                if (jwtService.isTokenValid(jwt, userDetails)) {
-                    owner = userRepository.findByName(userName);
-                    if (owner.isEmpty()){
-                        return new ServiceResponse<>(null, false, "Error during getting user notes occured");
-                    }
-                    List<Note> userNotes = owner.get().getNotes();
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);
+            if (jwtService.isTokenValid(jwt, userDetails)) {
+                List<Note> userNotes = noteService.getUserNotes(userName);
+                if(userNotes != null){
                     return new ServiceResponse<>(userNotes, true, "All user notes");
                 }
             }
@@ -77,30 +80,18 @@ public class NoteController {
         return new ServiceResponse<>(null, false, "Error during getting user notes occured");
     }
 
-    @GetMapping("/{id}")
+    @PostMapping("/decrypt/{id}")
     @CrossOrigin(origins = "http://localhost:4200")
     public ServiceResponse<NoteDTO> decryptUserNote(@PathVariable Long id, @RequestBody String notePassword, HttpServletRequest request){
-        Optional<User> owner;
-        Optional<Note> note;
 
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String jwt = authHeader.substring(7);
             String userName = jwtService.extractUsername(jwt);
-            if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);
-                if (jwtService.isTokenValid(jwt, userDetails)) {
-                    owner = userRepository.findByName(userName);
-                    note = noteRepository.findById(id);
-                    if (owner.isEmpty() || note.isEmpty()){
-                        return new ServiceResponse<>(null, false, "Error during decrypting note occured");
-                    }
-                    Note foundNote = note.get();
-                    if (foundNote.getOwner() == owner.get()  && Objects.equals(foundNote.getPassword(), notePassword)){
-                        NoteDTO noteResponse = noteService.decrypt(foundNote);
-                        return new ServiceResponse<>(noteResponse, true, "Decrypted note");
-                    }
-                }
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);
+            if (jwtService.isTokenValid(jwt, userDetails)) {
+                NoteDTO response = noteService.decrypt(notePassword, id, userName);
+                return new ServiceResponse<>(response, true, "Decrypted");
             }
         }
         return new ServiceResponse<>(null, false, "Error during decrypting note occured");
@@ -109,32 +100,15 @@ public class NoteController {
     // Endpoint do dodawania nowej notatki
     @PostMapping
     @CrossOrigin(origins = "http://localhost:4200")
-    public ServiceResponse<Note> addNote(@RequestBody NoteDTO noteDTO, HttpServletRequest request) {
-        Optional<User> owner;
+    public ServiceResponse<NoteDTO> addNote(@RequestBody NoteDTO noteDTO, HttpServletRequest request) {
 
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String jwt = authHeader.substring(7);
             String userName = jwtService.extractUsername(jwt);
-            if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);
-                if (jwtService.isTokenValid(jwt, userDetails)) {
-                    owner = userRepository.findByName(userName);
-                    if (owner.isEmpty()){
-                        return new ServiceResponse<>(null, false, "Error during adding note occured");
-                    }
-                    Note note;
-                    try{
-                        note = this.noteDTOConverterService.convertToNote(noteDTO, owner.get().getId());
-                    } catch (Exception e) {
-                        return new ServiceResponse<>(null,false,"Cannot parse item");
-                    }
-                    if (note == null || note.getOwner() == null || note.getTitle() == null || note.getContent() == null || note.getIsPublic() == null || note.getPassword() == null) {
-                        return new ServiceResponse<>(null, false, "Body is missing");
-                    }
-                    ServiceResponse<Note> response = noteService.addNote(note);
-                    return response;
-                }
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);
+            if (jwtService.isTokenValid(jwt, userDetails)) {
+                return noteService.addNote(noteDTO, userName);
             }
         }
         return new ServiceResponse<>(null, false, "Error during adding note occured");

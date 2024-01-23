@@ -62,7 +62,6 @@ public class AuthenticationService {
 
     public ServiceResponse<AuthenticationResponse> authenticate(AuthenticationRequest request) {
         String ipAddress = loginAttemptService.getClientIp();
-        loginAttemptService.loginAttempt(ipAddress);
         if (loginAttemptService.isBlocked()){
            return new ServiceResponse<>(null, false, "Przekroczono limit prób, spróbuj za tydzień");
         }
@@ -74,11 +73,13 @@ public class AuthenticationService {
                     )
             );
         } catch (AuthenticationException e) {
-            return new ServiceResponse<>(null, false, "Złe hasło lub loginwwwwwwwwwwwwwwww");
+            loginAttemptService.loginFailAttempt(ipAddress);
+            return new ServiceResponse<>(null, false, "Złe hasło lub login");
         }
         var user = repository.findByName(request.getName());
         if (user.isEmpty()){
-            return new ServiceResponse<>(null, false, "Złe hasło lub logineeeeeeeeeeeeeeee");
+            loginAttemptService.loginFailAttempt(ipAddress);
+            return new ServiceResponse<>(null, false, "Złe hasło lub login");
         }
         AuthenticationResponse response = AuthenticationResponse.builder()
                 .token("send code")
@@ -87,20 +88,14 @@ public class AuthenticationService {
     }
 
     public ServiceResponse<AuthenticationResponse> verifyCode(VerificationRequest verificationRequest) {
-        System.out.println("dupa");
         User user = (User) loadUserByUsername(verificationRequest.getName());
-        System.out.println("dupa " + user);
         Totp totp = new Totp(user.getSecret());
-        System.out.println("dupa otp " + totp);
         if ( !totp.verify(verificationRequest.getCode()) || !isCodeValid(verificationRequest.getCode())){
-            System.out.println("dupa1");
             throw new BadCredentialsException("Incorrect authorization data");
         }
-        System.out.println("dupa2");
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(verificationRequest.getName(),verificationRequest.getPassword())
         );
-        System.out.println("dupa3");
         String jwtToken = jwtService.generateToken(user);
         waitSomeTime();
         AuthenticationResponse response = AuthenticationResponse.builder()
@@ -113,8 +108,7 @@ public class AuthenticationService {
     public void waitSomeTime() {
         Random random = new SecureRandom();
         try {
-            // Generate a random wait time between 200 and 600 milliseconds
-            int randomWaitTime = random.nextInt(401) + 200; // Generates a random number between 200 and 600
+            int randomWaitTime = random.nextInt(401) + 400; 
             Thread.sleep(randomWaitTime);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -128,7 +122,7 @@ public class AuthenticationService {
     }
     private UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         if( loginAttemptService.isBlocked()){
-            throw new RuntimeException("IP blocked wait 7 day to try again you bad hacker XD");
+            throw new RuntimeException("IP blocked wait 7 day to try again");
         }
         return repository.findByName(username).orElseThrow(() -> new UsernameNotFoundException("Incorrect authorization data"));
     }

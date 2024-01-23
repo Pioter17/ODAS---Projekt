@@ -1,6 +1,10 @@
 package com.example.demo.config;
 
+import com.example.demo.models.Note;
+import com.example.demo.other.AuthenticationResponse;
 import com.example.demo.other.RegisterRequest;
+import com.example.demo.other.ServiceResponse;
+import com.example.demo.repositories.NoteRepository;
 import com.example.demo.repositories.UserRepository;
 import com.example.demo.services.AuthenticationService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +27,7 @@ import static com.example.demo.other.Role.ADMIN;
 public class AppConfig {
 
     private final UserRepository userRepository;
+    private final NoteRepository noteRepository;
 
     @Bean
     public UserDetailsService userDetailsService(){
@@ -51,13 +56,17 @@ public class AppConfig {
     @Bean
     CommandLineRunner commandLineRunner(AuthenticationService service) {
         return args -> {
-//            var admin = RegisterRequest.builder()
-//                    .name("admin")
-//                    .password("Admin12$")
-//                    .repeatedPassword("Admin12$")
-//                    .role(ADMIN)
-//                    .build();
-//            service.register(admin);
+            var admin = RegisterRequest.builder()
+                    .name("admin")
+                    .password("Admin12$")
+                    .repeatedPassword("Admin12$")
+                    .role(ADMIN)
+                    .build();
+            ServiceResponse<String> cos = service.register(admin);
+
+            noteRepository.save(new Note(userRepository.findByName(admin.getName()).get(), "tytul1", "<h1>TYTul 1</h1> zwykly tekst", true));
+            noteRepository.save(new Note(userRepository.findByName(admin.getName()).get(), "pogrubiony", "wykly tekst <b> a tu niespodzianka</b>", true));
+            noteRepository.save(new Note(userRepository.findByName(admin.getName()).get(), "pochylony", "<i>tttaka sytuacja</i>fa;sldkfjj", true));
         };
     }
 }

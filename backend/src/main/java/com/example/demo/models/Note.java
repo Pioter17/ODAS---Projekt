@@ -30,15 +30,13 @@ public class Note {
 
         private Boolean isPublic;
 
-        private String password;
         @JsonIgnore
         private byte[] iv;
 
-        public Note(User owner, String title, String content, Boolean isPublic, String password) {
+        public Note(User owner, String title, String content, Boolean isPublic) {
                 this.owner = owner;
                 this.title = title;
                 this.content = content;
                 this.isPublic = isPublic;
-                this.password = password;
         }
 }
