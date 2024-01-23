@@ -4,7 +4,6 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject }
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthenticationUserRegisterData } from '@core/interfaces/authentication-data';
-import { AuthenticationResponse } from '@core/interfaces/authentication-response';
 import { ServiceResponse } from '@core/interfaces/service-response';
 import { AuthService } from '@core/services/auth.service';
 import { UserService } from '@core/services/user.service';
@@ -43,9 +42,7 @@ export class RegisterComponent  implements OnInit {
     let user : AuthenticationUserRegisterData = this.form.value;
     this.authService.register(user).subscribe(
       (res : ServiceResponse<string>)=>{
-        console.log(res.data);
         this.photoBase64 = res.data;
-        console.log(this.photoBase64)
         this.cdr.detectChanges();
       }
     )  

@@ -1,0 +1,94 @@
+<div class="wrapper">
+    <div>
+        <span>Wskazówki:</span>
+        <ul>
+            <li>
+                <pre>
+                    &lt;i&gt;tekst pochylony&lt;/i&gt;
+                </pre>
+            </li>
+            <li>
+                <pre>
+                    &lt;b&gt;tekst pogrubiony&lt;/b&gt;
+                </pre>
+            </li>
+            <li>
+                <pre>
+                    &lt;h1&gt;Nagłówek (największy)&lt;/h1&gt;
+                </pre>
+            </li>
+            <li>
+                <pre>
+                    &lt;h2&gt;Nagłówek&lt;/h2&gt;
+                </pre>
+            </li>
+            <li>
+                <pre>
+                    &lt;h3&gt;Nagłówek&lt;/h3&gt;
+                </pre>
+            </li>
+            <li>
+                <pre>
+                    &lt;h4&gt;Nagłówek&lt;/h4&gt;
+                </pre>
+            </li>
+            <li>
+                <pre>
+                    &lt;h5&gt;Nagłówek (najmniejszy)&lt;/h5&gt;
+                </pre>
+            </li>
+            <li>
+                <pre>
+                    &lt;a href="adresURL"&gt;Odnośnik do adresURL&lt;/a&gt;
+                </pre>
+            </li>
+            <li>
+                <pre>
+                    &lt;img src="adresURLObrazka"&gt; Obrazek z danego adresu
+                </pre>
+            </li>
+        </ul>
+    </div>
+    <div>
+        <form
+            [formGroup]="form"
+        >
+            <label>Tytuł</label>
+            <input
+                formControlName="title"
+                type="text"
+            >
+            <label> Treść </label>
+            <textarea
+                formControlName="content"
+                type="text"
+            ></textarea>
+            <div style="display: flex;">
+                <label> Czy ma być publiczna (niezaszyfrowana)? </label>
+                <input
+                    formControlName="isPublic"
+                    type="checkbox"
+                    class="check"
+                >
+            </div>  
+            @if (!form.get('isPublic').value) {
+                <label> Hasło </label>
+                <input
+                    formControlName="password"
+                    type="password"
+                >
+            }          
+            
+            <button (click)="add()" [disabled]="!form.valid">
+                Dodaj
+            </button>
+        </form>   
+    </div>
+    <div class="preview"> 
+        <div style="display: flex; gap: 10px;">
+            <span>Podgląd</span>
+            <button (click)="updatePreview()">Zaktualizuj podgląd</button>
+        </div>
+        <div [innerHTML]="preview"></div>
+    </div>
+</div>

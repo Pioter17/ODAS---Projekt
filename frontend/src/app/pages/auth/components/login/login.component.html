@@ -22,7 +22,7 @@
         <span>{{error}}</span>
     }
 </form>
-<div *ngIf="doVerify">
+<div class="sth" *ngIf="doVerify">
     <label>Wpisz kod weryfikacyjny</label>
     <input type="text"  [(ngModel)]="code">
     <button (click)="verify()">Wyślij</button>

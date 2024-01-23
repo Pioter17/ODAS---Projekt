@@ -1,0 +1,17 @@
+
+@if (note$ |async; as note) {
+    <p> {{ note.data.title }} </p>
+    <div *ngIf="note.data.isPublic" [innerHTML]="note.data.content">
+    </div>
+    @if (!note.data.isPublic) {
+        <label>Wpisz hasło do notatki</label>
+        <form [formGroup]="form">
+
+            <input formControlName="passwd" type="password">
+            <button (click)="decryptNote()">Deszyfruj notatkę</button>
+        </form>
+        @if (decryptedNote$ |async; as decryptedNote) {
+            <div [innerHTML]="decryptedNote.data.content"></div>
+        }
+    }
+}

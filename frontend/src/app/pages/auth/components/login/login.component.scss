@@ -1,3 +1,18 @@
 :host {
   display: block;
+  padding-top: 50px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  width: 40%;
+  margin: auto;
+  gap: 10px;
+}
+
+.sth {
+  width: 40%;
+  margin: auto;
+  margin-top: 10px;
 }

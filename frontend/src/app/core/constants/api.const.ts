@@ -5,5 +5,7 @@ export const ApiRoutes = {
     LOGIN: '/login',
     VERIFY: '/verify',
     REGISTER: '/register',
-    LOGOUT: 'logout'
+    LOGOUT: 'logout',
+    USER_ENDPOINT: '/user',
+    DECRYPT_ENDPOINT: '/decrypt'
 }

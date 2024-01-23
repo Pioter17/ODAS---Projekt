@@ -9,12 +9,12 @@
     <label> Hasło </label>
     <input
         formControlName="password"
-        type="text"
+        type="password"
     >
     <label> Powtórz hasło </label>
     <input
         formControlName="repeatedPassword"
-        type="text"
+        type="password"
     >
     <button class="btn btn-primary" (click)="register()">
         Zarejestruj
@@ -24,11 +24,12 @@
         <img
             [src]="'data:image/jpg;base64,'+photoBase64"
         />
+        <br>
         <a href="auth/login">
             Przejdź do logowania
         </a>
     </div>
-    <a href="auth/login">
+    <a *ngIf="photoBase64 == ''" href="auth/login">
         Masz już konto? Zaloguj się!
     </a>
 </form>

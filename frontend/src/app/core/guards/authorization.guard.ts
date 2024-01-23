@@ -26,7 +26,6 @@ export class AuthorizationGuardGuard  {
     if (this.userService.isAuthenticated())
       return true;
     else {
-      console.log("cantctivate router");
       return this.router.createUrlTree(['auth']);
     }
   }

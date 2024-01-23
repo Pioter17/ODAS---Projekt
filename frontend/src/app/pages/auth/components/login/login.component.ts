@@ -9,7 +9,6 @@ import { ServiceResponse } from '@core/interfaces/service-response';
 import { AuthService } from '@core/services/auth.service';
 import { UserService } from '@core/services/user.service';
 import { LoginFormCreatorService } from '@pages/auth/services/login-form-creator.service';
-import { toUpper } from 'lodash';
 
 @Component({
   selector: 'app-login',
@@ -53,14 +52,12 @@ export class LoginComponent implements OnInit{
         if(res.data.token == "send code"){
           this.doVerify = true;
         }
-        // this.userService.setUserToken(res.data.token);
         console.log(this.userService.getUserToken());
       }
     )
   }
 
   verify(){
-    // let user : AuthenticationUserLoginData = this.form.value;
     let request : VerificationRequest = {
       name: this.user.name,
       password: this.user.password,

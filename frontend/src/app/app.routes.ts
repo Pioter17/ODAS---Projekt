@@ -15,8 +15,8 @@ export const routes: Routes = [
         children: [
             {
                 path: 'home',
-                component: HomeComponent,
-                canActivate: [AuthorizationGuardGuard]
+                canActivate: [AuthorizationGuardGuard],
+                loadChildren: ()=> import('@pages/home/home.routing')
             }
         ]
     },
@@ -24,9 +24,4 @@ export const routes: Routes = [
         path: 'auth',
         loadChildren: ()=> import('@pages/auth/auth.routing'),
     },
-    // {
-    //     path: '**',
-    //     redirectTo: 'home',
-    //     pathMatch: 'full'
-    // }
 ];

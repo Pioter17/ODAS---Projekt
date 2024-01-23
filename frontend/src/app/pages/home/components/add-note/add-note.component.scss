@@ -1,0 +1,33 @@
+// :host {
+//   display: block;
+// }
+
+form {
+  display: flex;
+  flex-direction: column;
+  width: 40%;
+  gap: 10px;
+}
+
+textarea {
+  width: 450px;
+  height: 600px;
+}
+
+.check {
+  align-self: self-start;
+}
+
+.wrapper {
+  padding-top: 20px;
+  display: flex;
+  width: 80%;
+  margin: auto;
+  gap: 20px;
+}
+
+.preview {
+  border: 1px solid black;
+  width: 40%;
+  // height: 100%;
+}

@@ -1,0 +1,25 @@
+@for (note of publicNotes; track $index) {
+    <div>
+        <p>{{note.title}}</p>
+        <div [innerHTML]="sanitizer.bypassSecurityTrustHtml(note.content)">
+        </div>
+    </div>
+}
+@empty {
+    Nie ma jeszcze żadnych publicznych notatek
+}
+<br>
+<br>
+@for (note of userNotes; track $index) {
+    <div>
+        <p>{{note.title}}</p>
+        <button (click)="show(note.id)">
+            Pokaż treść
+        </button>        
+    </div>
+}
+@empty {
+    Nie masz żadnych swoich notatek
+}
+
+<button routerLink="/home/add">Dodaj notatkę</button>
