@@ -1,3 +1,5 @@
+import { StringIterator } from "lodash"
+
 export interface AuthenticationUserRegisterData {
     name: string,
     password: string,
@@ -5,8 +7,12 @@ export interface AuthenticationUserRegisterData {
 }
 
 export interface AuthenticationUserLoginData {
-  user: {
-    username: string,
-    password: string,
-  }
+  name: string,
+  password: string,
+}
+
+export interface VerificationRequest {
+  name: string,
+  password: string,
+  code: string
 }

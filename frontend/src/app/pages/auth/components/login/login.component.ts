@@ -1,14 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthenticationUserLoginData } from '@core/interfaces/authentication-data';
+import { AuthenticationUserLoginData, VerificationRequest } from '@core/interfaces/authentication-data';
 import { AuthenticationResponse } from '@core/interfaces/authentication-response';
 import { ServiceResponse } from '@core/interfaces/service-response';
 import { AuthService } from '@core/services/auth.service';
 import { UserService } from '@core/services/user.service';
 import { LoginFormCreatorService } from '@pages/auth/services/login-form-creator.service';
+import { toUpper } from 'lodash';
 
 @Component({
   selector: 'app-login',
@@ -16,7 +17,8 @@ import { LoginFormCreatorService } from '@pages/auth/services/login-form-creator
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    HttpClientModule
+    HttpClientModule,
+    FormsModule
   ],
   providers: [
     AuthService
@@ -27,6 +29,9 @@ import { LoginFormCreatorService } from '@pages/auth/services/login-form-creator
 export class LoginComponent implements OnInit{   
   form: FormGroup;
   error: string = "";
+  code: string;
+  doVerify = false;
+  user: AuthenticationUserLoginData = null;
 
   formCreator = inject(LoginFormCreatorService);
   authService = inject(AuthService);
@@ -39,7 +44,29 @@ export class LoginComponent implements OnInit{
 
   login(){
     let user : AuthenticationUserLoginData = this.form.value;
+    this.user = user;
     this.authService.login(user).subscribe(
+      (res : ServiceResponse<AuthenticationResponse>) => {
+        if(!res.isSuccess){
+          this.error = res.message;
+        }
+        if(res.data.token == "send code"){
+          this.doVerify = true;
+        }
+        // this.userService.setUserToken(res.data.token);
+        console.log(this.userService.getUserToken());
+      }
+    )
+  }
+
+  verify(){
+    // let user : AuthenticationUserLoginData = this.form.value;
+    let request : VerificationRequest = {
+      name: this.user.name,
+      password: this.user.password,
+      code: this.code
+    };
+    this.authService.verify(request).subscribe(
       (res : ServiceResponse<AuthenticationResponse>) => {
         if(!res.isSuccess){
           this.error = res.message;

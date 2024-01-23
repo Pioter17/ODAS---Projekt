@@ -1,16 +1,15 @@
 package com.example.demo.other;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class AuthenticationRequest {
-    private String name;
+    String name;
     String password;
 }

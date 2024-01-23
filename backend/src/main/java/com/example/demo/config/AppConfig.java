@@ -51,13 +51,13 @@ public class AppConfig {
     @Bean
     CommandLineRunner commandLineRunner(AuthenticationService service) {
         return args -> {
-            var admin = RegisterRequest.builder()
-                    .name("admin")
-                    .password("Admin12$")
-                    .repeatedPassword("Admin12$")
-                    .role(ADMIN)
-                    .build();
-            service.register(admin);
+//            var admin = RegisterRequest.builder()
+//                    .name("admin")
+//                    .password("Admin12$")
+//                    .repeatedPassword("Admin12$")
+//                    .role(ADMIN)
+//                    .build();
+//            service.register(admin);
         };
     }
 }

@@ -14,7 +14,7 @@
     <button class="btn btn-primary" (click)="login()">
         Zaloguj
     </button>
-    <div id="buttonDiv"></div>
+    
     <a href="auth/register">
         Nie masz konta? Zarejestruj się!
     </a>
@@ -22,3 +22,8 @@
         <span>{{error}}</span>
     }
 </form>
+<div *ngIf="doVerify">
+    <label>Wpisz kod weryfikacyjny</label>
+    <input type="text"  [(ngModel)]="code">
+    <button (click)="verify()">Wyślij</button>
+</div>

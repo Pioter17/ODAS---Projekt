@@ -9,16 +9,25 @@
     <label> Hasło </label>
     <input
         formControlName="password"
-        type="password"
+        type="text"
     >
     <label> Powtórz hasło </label>
     <input
         formControlName="repeatedPassword"
-        type="password"
+        type="text"
     >
     <button class="btn btn-primary" (click)="register()">
         Zarejestruj
     </button>
+    <div class="centered" *ngIf="photoBase64 != ''">
+        <h2>Zeskanuj ten kod qr w aplikacji authenticator.</h2>
+        <img
+            [src]="'data:image/jpg;base64,'+photoBase64"
+        />
+        <a href="auth/login">
+            Przejdź do logowania
+        </a>
+    </div>
     <a href="auth/login">
         Masz już konto? Zaloguj się!
     </a>

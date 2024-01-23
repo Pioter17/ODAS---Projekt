@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthenticationUserRegisterData } from '@core/interfaces/authentication-data';
@@ -27,11 +27,13 @@ import { RegisterFormCreatorService } from '@pages/auth/services/register-form-c
 })
 export class RegisterComponent  implements OnInit {
   form: FormGroup;
+  photoBase64: string = '';
 
   formCreator = inject(RegisterFormCreatorService);
   authService = inject(AuthService);
   userService = inject(UserService);
   router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.form = this.formCreator.getRegistrationForm();
@@ -40,11 +42,13 @@ export class RegisterComponent  implements OnInit {
   register(){
     let user : AuthenticationUserRegisterData = this.form.value;
     this.authService.register(user).subscribe(
-      (res : ServiceResponse<boolean>)=>{
-        if(res.data == true && res.isSuccess == true){
-           console.log(res.message);
-           this.router.navigateByUrl('auth/login');
-        }
-    })  }
+      (res : ServiceResponse<string>)=>{
+        console.log(res.data);
+        this.photoBase64 = res.data;
+        console.log(this.photoBase64)
+        this.cdr.detectChanges();
+      }
+    )  
+  }
 
 }

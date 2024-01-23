@@ -2,6 +2,7 @@ package com.example.demo.models;
 
 
 import com.example.demo.other.Role;
+import com.example.demo.other.SecretEncryption;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -28,6 +29,9 @@ public class User implements UserDetails {
     private String name;
     private String password;
 
+    @Getter(AccessLevel.NONE)
+    @Column(name = "secret", length = 4096)
+    private String secret;
     @Enumerated(EnumType.STRING)
     private Role role;
 
@@ -35,9 +39,15 @@ public class User implements UserDetails {
     @JsonIgnore
     private List<Note> notes = new ArrayList<>();
 
-    public User(String name, String passwd) {
+    public User(String name, String password, Role role) {
         this.name = name;
         this.password = password;
+        try {
+            this.secret = SecretEncryption.encrypt(SecretEncryption.buildSecret(name,password));
+        } catch (Exception e){
+            this.secret = SecretEncryption.buildSecret(name,password);
+        }
+        this.role = role;
     }
     public void setName(String name) {
         this.name = name;
@@ -81,4 +91,13 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    public String getSecret() {
+        try{
+            return  SecretEncryption.decrypt(this.secret);
+        }catch (Exception e) {
+            return this.secret;
+        }
+    }
+
 }

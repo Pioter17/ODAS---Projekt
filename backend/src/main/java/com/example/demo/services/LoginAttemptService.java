@@ -4,6 +4,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ExecutionException;
@@ -14,6 +15,9 @@ public class LoginAttemptService {
 
     private static final int MAX_ATTEMPTS = 6;
     private static final int LOCKOUT_DURATION_DAYS = 7;
+
+    @Autowired
+    private HttpServletRequest request;
 
     private final LoadingCache<String, Integer> loginAttemptsCache;
 
@@ -37,10 +41,10 @@ public class LoginAttemptService {
         }
     }
 
-    public boolean isBlocked(String ipAddress) {
+    public boolean isBlocked() {
         int attempts = 0;
         try {
-            attempts = loginAttemptsCache.get(ipAddress);
+            attempts = loginAttemptsCache.get(getClientIp());
             if (attempts > MAX_ATTEMPTS) {
                 return true;
             }
@@ -50,7 +54,7 @@ public class LoginAttemptService {
         return false;
     }
 
-    public String getClientIp(HttpServletRequest request) {
+    public String getClientIp() {
         String forwardedFor = request.getHeader("X-Forwarded-For");
         if (forwardedFor != null && !forwardedFor.isEmpty()) {
             return forwardedFor.split(",")[0].trim();

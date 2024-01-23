@@ -3,6 +3,7 @@ export const ApiRoutes = {
     NOTES_ENDPOINT: '/api/v1/notes',
     AUTH: '/api/v1/auth',
     LOGIN: '/login',
+    VERIFY: '/verify',
     REGISTER: '/register',
     LOGOUT: 'logout'
 }
