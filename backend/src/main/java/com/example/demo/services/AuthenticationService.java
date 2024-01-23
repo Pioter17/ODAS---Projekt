@@ -108,7 +108,7 @@ public class AuthenticationService {
     public void waitSomeTime() {
         Random random = new SecureRandom();
         try {
-            int randomWaitTime = random.nextInt(401) + 400; 
+            int randomWaitTime = random.nextInt(401) + 400;
             Thread.sleep(randomWaitTime);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
