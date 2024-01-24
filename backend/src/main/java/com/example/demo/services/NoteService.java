@@ -53,15 +53,23 @@ public class NoteService {
         return finalList;
     }
 
-    public Note getById(Long id){
+    public Note getById(Long id, String userName){
         Optional<Note> note = noteRepository.findById(id);
         if(note.isEmpty()){
             return null;
         }
-        Note resultNote = note.get();
-        resultNote.setOwner(null);
-        resultNote.setContent(sanitizeHtml(resultNote.getContent()));
-        return resultNote;
+        Optional<User> user = userRepository.findByName(userName);
+        if(user.isEmpty()){
+            return null;
+        }
+        if (Objects.equals(user.get().getId(), note.get().getOwner().getId()) || note.get().getIsPublic()){
+            Note resultNote = note.get();
+            resultNote.setOwner(null);
+            resultNote.setContent(sanitizeHtml(resultNote.getContent()));
+            return resultNote;
+        }
+        return null;
+
     }
 
     public List<Note> getUserNotes(String userName){

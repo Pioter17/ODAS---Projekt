@@ -53,12 +53,20 @@ public class NoteController {
 
     @GetMapping("/{id}")
     @CrossOrigin(origins = "http://localhost:4200")
-    public ServiceResponse<Note> getNoteById(@PathVariable Long id) {
-        Note note = noteService.getById(id);
-        if (note == null){
-            return new ServiceResponse<>(null, false, "Error occured");
+    public ServiceResponse<Note> getNoteById(@PathVariable Long id, HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String jwt = authHeader.substring(7);
+            String userName = jwtService.extractUsername(jwt);
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);
+            if (jwtService.isTokenValid(jwt, userDetails)) {
+                Note note = noteService.getById(id, userName);
+                if (note != null){
+                    return new ServiceResponse<>(note, true, "Note");
+                }
+            }
         }
-        return new ServiceResponse<>(note, true, "All public notes");
+        return new ServiceResponse<>(null, false, "Error occured");
     }
 
     @GetMapping("/user")

@@ -22,7 +22,6 @@ import { ApiService } from '@pages/home/services/api.service';
 })
 export class DisplayListsComponent implements OnInit{ 
   publicNotes: NoteDTO[];
-  publicDisplays: boolean[];
   userNotes: Note[];
 
   apiService = inject(ApiService);
@@ -33,19 +32,12 @@ export class DisplayListsComponent implements OnInit{
     this.apiService.getAllPublicNotes().subscribe(
       (res)=>{
         this.publicNotes = res.data;
-        for(let i = 0; i < this.publicNotes.length; i++){
-          this.publicDisplays.push(false);
-        }
     });
     this.apiService.getAllUserNotes().subscribe(
       (res)=>{
         this.userNotes = res.data;
       }
     )
-  }
-
-  displayPublic(id: number){
-    this.publicDisplays[id] = !this.publicDisplays[id];
   }
 
   show(id: number){

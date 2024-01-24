@@ -1,0 +1,19 @@
+# Build Stage
+FROM maven:3.8.4-openjdk-17 as build
+WORKDIR /app
+COPY backend/ /app
+COPY keystore.p12 /app/keystore.p12
+# COPY backend/mvnw ./
+# RUN chmod +x mvnw
+RUN mvn clean install -DskipTests
+
+# Run Stage
+FROM openjdk:23-slim as run
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app/keystore.p12 /app/keystore.p12
+
+
+EXPOSE 8443
+
+ENTRYPOINT ["java", "-jar", "app.jar"]

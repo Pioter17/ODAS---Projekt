@@ -1,6 +1,16 @@
 import { Injectable } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, ValidationErrors, Validators } from '@angular/forms';
+import { ValidatorFn, AbstractControl } from "@angular/forms";
 
+export const PasswordValidator: ValidatorFn = (control: AbstractControl): { [key: string]: boolean } | null => {
+  const password = control.get('password');
+  const repeatPassword = control.get('repeatedPassword');
+
+  if (!password || !repeatPassword) {
+    return null;
+  }
+  return password.value === repeatPassword.value ? null : { passwordsNotSame: true };
+};
 @Injectable({
   providedIn: 'root'
 })
@@ -12,9 +22,9 @@ export class RegisterFormCreatorService {
 
   getRegistrationForm(){
     return this.fb.group({
-      name: [null as string, Validators.required],
-      password: [null as string, Validators.required],
-      repeatedPassword: [null as string, Validators.required]
-    });
+      name: [null as string, [Validators.required, Validators.minLength(5), Validators.maxLength(255)]],
+      password: [null as string, [Validators.required, Validators.minLength(8), Validators.maxLength(255)]],
+      repeatedPassword: [null as string, [Validators.required, Validators.minLength(8), Validators.maxLength(255)]]
+    }, { validators: [PasswordValidator] });
   }
 }

@@ -10,13 +10,15 @@
     <input
         formControlName="password"
         type="password"
+        (input)="calculatePasswordEntropy()"
     >
+    <div>{{entropy}}</div>
     <label> Powtórz hasło </label>
     <input
         formControlName="repeatedPassword"
         type="password"
     >
-    <button class="btn btn-primary" (click)="register()">
+    <button [disabled]="!form.valid" class="btn btn-primary" (click)="register()">
         Zarejestruj
     </button>
     <div class="centered" *ngIf="photoBase64 != ''">

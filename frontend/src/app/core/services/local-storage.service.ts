@@ -16,9 +16,6 @@ export class LocalStorageService {
   constructor(@Inject(BROWSER_STORAGE) public storage: Storage) {}
 
   public setItem<T>(key: KeyStorage, value: T): void {
-    console.log("cos dziala")
-    console.log("key to: " + key);
-    console.log("wartosc key to" + JSON.stringify(value))
     this.storage.setItem(key, JSON.stringify(value));
   }
 
