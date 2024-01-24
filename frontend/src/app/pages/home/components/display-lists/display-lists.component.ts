@@ -4,6 +4,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router, RouterModule } from '@angular/router';
 import { Note, NoteDTO } from '@core/interfaces/note-formats';
+import { LocalStorageService } from '@core/services/local-storage.service';
 import { ApiService } from '@pages/home/services/api.service';
 
 @Component({
@@ -27,6 +28,7 @@ export class DisplayListsComponent implements OnInit{
   apiService = inject(ApiService);
   sanitizer = inject(DomSanitizer);
   router = inject(Router);
+  localStorageService = inject(LocalStorageService)
 
   ngOnInit(): void {
     this.apiService.getAllPublicNotes().subscribe(
@@ -42,5 +44,10 @@ export class DisplayListsComponent implements OnInit{
 
   show(id: number){
     this.router.navigateByUrl(`home/show/${id}`)
+  }
+
+  logout(){
+    this.localStorageService.clear();
+    this.router.navigateByUrl('/auth/login');
   }
 }

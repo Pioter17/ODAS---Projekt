@@ -58,4 +58,8 @@ export class AddNoteComponent implements OnInit{
   updatePreview(){
     this.preview = this.form.get('content').value;
   }
+
+  goBack(){
+    this.router.navigateByUrl('/home/list');
+  }
 }

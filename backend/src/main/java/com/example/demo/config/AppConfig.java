@@ -1,5 +1,6 @@
 package com.example.demo.config;
 
+import com.example.demo.dtos.NoteDTO;
 import com.example.demo.models.Note;
 import com.example.demo.other.AuthenticationResponse;
 import com.example.demo.other.RegisterRequest;
@@ -7,6 +8,7 @@ import com.example.demo.other.ServiceResponse;
 import com.example.demo.repositories.NoteRepository;
 import com.example.demo.repositories.UserRepository;
 import com.example.demo.services.AuthenticationService;
+import com.example.demo.services.NoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -54,7 +56,7 @@ public class AppConfig {
     }
 
     @Bean
-    CommandLineRunner commandLineRunner(AuthenticationService service) {
+    CommandLineRunner commandLineRunner(AuthenticationService service, NoteService noteService) {
         return args -> {
             var admin = RegisterRequest.builder()
                     .name("admin")
@@ -64,9 +66,10 @@ public class AppConfig {
                     .build();
             ServiceResponse<String> cos = service.register(admin);
 
-            noteRepository.save(new Note(userRepository.findByName(admin.getName()).get(), "tytul1", "<h1>TYTul 1</h1> zwykly tekst", true));
-            noteRepository.save(new Note(userRepository.findByName(admin.getName()).get(), "pogrubiony", "wykly tekst <b> a tu niespodzianka</b>", true));
-            noteRepository.save(new Note(userRepository.findByName(admin.getName()).get(), "pochylony", "<i>tttaka sytuacja</i>fa;sldkfjj", true));
+            noteRepository.save(new Note(userRepository.findByName(admin.getName()).get(), "tytul1", "<h1>TYTUL 1</h1> zwykly tekst", true));
+            noteRepository.save(new Note(userRepository.findByName(admin.getName()).get(), "pogrubiony", "zwykly tekst <b> a tu niespodzianka</b>", true));
+            noteRepository.save(new Note(userRepository.findByName(admin.getName()).get(), "pochylony", "<i>taka sytuacja</i> cos tam cos tam", true));
+            noteService.addNote(new NoteDTO("sekret", "<b>bardzo ważna informacja</b> cos tam cos tam", false, "123"), "admin");
         };
     }
 }

@@ -35,7 +35,6 @@ export class LocalStorageService {
   }
 
   public clear(): void {
-    console.log("locoal storage clear")
     this.storage.clear();
   }
 

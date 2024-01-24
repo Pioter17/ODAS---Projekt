@@ -1,5 +1,7 @@
+<button (click)="logout()">Wyloguj</button>
+
 @for (note of publicNotes; track $index) {
-    <div>
+    <div class="publicNote">
         <p>{{note.title}}</p>
         <div [innerHTML]="sanitizer.bypassSecurityTrustHtml(note.content)">
         </div>
@@ -11,7 +13,7 @@
 <br>
 <br>
 @for (note of userNotes; track $index) {
-    <div>
+    <div class="publicNote">
         <p>{{note.title}}</p>
         <button (click)="show(note.id)">
             Pokaż treść

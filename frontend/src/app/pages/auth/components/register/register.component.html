@@ -6,13 +6,16 @@
         formControlName="name"
         type="text"
     >
+    <p *ngIf="form.get('name').hasError('minlength')">Nazwa musi mieć minimum 5 znaków</p>
     <label> Hasło </label>
     <input
         formControlName="password"
         type="password"
         (input)="calculatePasswordEntropy()"
     >
-    <div>{{entropy}}</div>
+    <div>{{entropy > 4 ? 'Hasło dobre' : entropy > 3.3 ? 'Hasło średnie' : 'Hasło słabe'}}</div>
+    <p *ngIf="form.get('password').hasError('pattern')">Hasło musi zawierać co najmniej jedną małą i wielką literę, cyfrę i znak specjalny</p>
+    <p *ngIf="form.get('password').hasError('minlength')">Hasło musi mieć minimum 8 znaków</p>
     <label> Powtórz hasło </label>
     <input
         formControlName="repeatedPassword"

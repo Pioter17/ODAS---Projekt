@@ -1,17 +1,21 @@
 
-@if (note$ |async; as note) {
-    <p> {{ note.data.title }} </p>
-    <div *ngIf="note.data.isPublic" [innerHTML]="note.data.content">
-    </div>
-    @if (!note.data.isPublic) {
-        <label>Wpisz hasło do notatki</label>
-        <form [formGroup]="form">
-
-            <input formControlName="passwd" type="password">
-            <button (click)="decryptNote()">Deszyfruj notatkę</button>
-        </form>
-        @if (decryptedNote$ |async; as decryptedNote) {
-            <div [innerHTML]="decryptedNote.data.content"></div>
+<div class="wrapper">
+    @if (note$ |async; as note) {
+        <p> {{ note.data.title }} </p>
+        <div *ngIf="note.data.isPublic" [innerHTML]="sanitizer.bypassSecurityTrustHtml(note.data.content)">
+        </div>
+        @if (!note.data.isPublic) {
+            <label style="margin-bottom: 10px;">Wpisz hasło do notatki</label>
+            <form [formGroup]="form">    
+                <input style="margin: 10px;" formControlName="passwd" type="password">
+                <button (click)="decryptNote()">Deszyfruj notatkę</button>
+            </form>
+            @if (decryptedNote$ |async; as decryptedNote) {
+                <h3>Zawartość notatki</h3>
+                <div style="border: 1px solid black;" [innerHTML]="sanitizer.bypassSecurityTrustHtml(decryptedNote.data.content)"></div>
+            }
         }
     }
-}
+    <p *ngIf="!isSuccess">Wystąpił błąd. Czyżby ktoś próbował się dostać do nie swojej notatki?</p>
+    <button style="margin: 20px;" (click)="goBack()">Wróć do strony głównej</button>
+</div>

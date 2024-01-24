@@ -44,12 +44,5 @@ export class AuthService {
         return of({ data: { token: null }, isSuccess: false, message: errorMessage });
       }))
   }
-
-  logout(): Observable<boolean> {
-    return this.http.post<unknown>(`${ApiRoutes.API_BASE_PATH}${ApiRoutes.AUTH}${ApiRoutes.LOGOUT}`, {}).pipe(
-      map(() => true),
-      catchError(() => of(false)),
-    )
-  }
 }
 

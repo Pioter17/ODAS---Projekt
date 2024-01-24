@@ -20,10 +20,12 @@ export class RegisterFormCreatorService {
     private fb: FormBuilder
   ) { }
 
+  private readonly patternForPassword = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()-+=]).*$";
+
   getRegistrationForm(){
     return this.fb.group({
       name: [null as string, [Validators.required, Validators.minLength(5), Validators.maxLength(255)]],
-      password: [null as string, [Validators.required, Validators.minLength(8), Validators.maxLength(255)]],
+      password: [null as string, [Validators.required, Validators.minLength(8), Validators.maxLength(255), Validators.pattern(this.patternForPassword)]],
       repeatedPassword: [null as string, [Validators.required, Validators.minLength(8), Validators.maxLength(255)]]
     }, { validators: [PasswordValidator] });
   }

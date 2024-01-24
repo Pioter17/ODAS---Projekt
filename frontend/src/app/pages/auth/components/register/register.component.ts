@@ -56,33 +56,25 @@ export class RegisterComponent  implements OnInit {
       alert("niepoprawne dane")
     }
   }
-
   calculatePasswordEntropy() {
-    // Długość hasła
-    let password = this.form.get('password').value;
-    const passwordLength = password.length;
-  
-    // Zbiór unikalnych znaków w haśle
-    const uniqueCharacters = new Set(password);
-    console.log(uniqueCharacters);
-  
-    // Liczba unikalnych znaków
-    const uniqueCharacterCount = uniqueCharacters.size;
-    console.log(uniqueCharacterCount);
-  
-    // Jeśli hasło jest puste lub zawiera tylko jeden unikalny znak, entropia wynosi 0
-    if (passwordLength === 0 || uniqueCharacterCount === 1) {
-      this.entropy = 0;
+    let word = this.form.get('password').value;
+    const charCount: Record<string, number> = {};
+    const wordLength = word.length;
+
+    // Oblicz częstość występowania każdego znaku w słowie
+    for (const char of word) {
+      charCount[char] = (charCount[char] || 0) + 1;
     }
-  
-    // Entropia dla jednego znaku
-    const entropyPerCharacter = Math.log2(uniqueCharacterCount);
-    console.log(entropyPerCharacter)
-  
-    // Całkowita entropia dla hasła
-    const totalEntropy = entropyPerCharacter * passwordLength;
-  
-    this.entropy = totalEntropy;
+
+    // Oblicz prawdopodobieństwo wystąpienia każdego znaku
+    const probabilities = Object.values(charCount).map(count => count / wordLength);
+
+    // Oblicz entropię na podstawie wzoru: H(X) = -Σ P(x) * log2(P(x))
+    const entropy = probabilities.reduce((sum, probability) => {
+      return sum - probability * Math.log2(probability);
+    }, 0);
+
+    this.entropy = entropy;
   }
   
 
