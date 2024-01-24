@@ -2,7 +2,7 @@
 
 @for (note of publicNotes; track $index) {
     <div class="publicNote">
-        <p>{{note.title}}</p>
+        <p style="margin-bottom: 5px; border-bottom: 1px solid black; padding-bottom: 5px;">Tytuł: {{note.title}}</p>
         <div [innerHTML]="sanitizer.bypassSecurityTrustHtml(note.content)">
         </div>
     </div>
