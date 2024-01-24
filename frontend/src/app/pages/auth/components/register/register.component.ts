@@ -49,7 +49,7 @@ export class RegisterComponent  implements OnInit {
             this.cdr.detectChanges();
           } else {
             alert("niepoprawne dane");
-          }          
+          }
         }
       )
     } else {
@@ -76,6 +76,6 @@ export class RegisterComponent  implements OnInit {
 
     this.entropy = entropy;
   }
-  
+
 
 }

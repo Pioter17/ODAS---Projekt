@@ -6,7 +6,7 @@
         </div>
         @if (!note.data.isPublic) {
             <label style="margin-bottom: 10px;">Wpisz hasło do notatki</label>
-            <form [formGroup]="form">    
+            <form [formGroup]="form">
                 <input style="margin: 10px;" formControlName="passwd" type="password">
                 <button (click)="decryptNote()">Deszyfruj notatkę</button>
             </form>
@@ -16,6 +16,9 @@
             }
         }
     }
-    <p *ngIf="!isSuccess">Wystąpił błąd. Czyżby ktoś próbował się dostać do nie swojej notatki?</p>
+    <div *ngIf="!isSuccess">
+      <p >Wystąpił błąd. Czyżby ktoś próbował się dostać do nie swojej notatki?</p>
+      <img src="assets/skill-issue.jpg">
+    </div>
     <button style="margin: 20px;" (click)="goBack()">Wróć do strony głównej</button>
 </div>
