@@ -8,3 +8,5 @@
 + Opcję szyfrowania notatek
 + Zabezpieczenia przed nadmierną liczbą prób logowania
 + Dockeryzację i obsługę serwera nginx
+
+Warstwa interfejsu nie została dopracowana, ponieważ nie było to celem projektu
