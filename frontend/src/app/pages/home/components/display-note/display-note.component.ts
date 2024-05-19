@@ -25,12 +25,12 @@ import { Observable } from 'rxjs';
   templateUrl: './display-note.component.html',
   styleUrl: './display-note.component.scss',
 })
-export class DisplayNoteComponent implements OnInit{ 
+export class DisplayNoteComponent implements OnInit{
   note$: Observable<ServiceResponse<Note>>;
   decryptedNote$: Observable<ServiceResponse<NoteDTO>>;
   id: any;
   form: FormGroup
-  isSuccess = false;
+  isSuccess = true;
 
   apiService = inject(ApiService);
   router = inject(Router);
@@ -42,7 +42,7 @@ export class DisplayNoteComponent implements OnInit{
     this.form = this.fb.group({passwd: ["", Validators.required]});
     this.route.params.subscribe(params => {
       const idParam = params['id?'];
-      this.id = idParam!=="" ? +idParam : undefined; 
+      this.id = idParam!=="" ? +idParam : undefined;
       this.note$ = this.apiService.getNoteById(this.id);
     })
 
