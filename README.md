@@ -1,6 +1,6 @@
 # ODAS---Project
 
-It is a project for university classes. The topic is to make application for writing notes and saving it in a secured backend. The whole project is about security, and that's why backend part is the most important. Features:
+It is a project for 5th semester of college. The topic is to make application for writing notes and saving it in a secured backend. The whole project is about security, and that's why backend part is the most important. Features:
 
 - Writing notes with ability to add some basic styling, such as: 
   - bold/italic, 
