@@ -4,7 +4,15 @@ It is a project for one of college classes. The topic is to make application for
 
 ## Technologies
 
-
+- Angular,
+- Typescript,
+- Java,
+- Spring,
+- JWT,
+- Docker,
+- Google Authenticator,
+- HTML,
+- SCSS.
 
 ## Features
 
@@ -25,6 +33,7 @@ It is a project for one of college classes. The topic is to make application for
   - Password strength counting
   - Data access control
 - Whole app is dockerized
+<br>
 
 ## Backend
 
@@ -71,7 +80,8 @@ It is a project for one of college classes. The topic is to make application for
   ![Decrypting note](Readme-images/note-decrypting.png)
 
 </details>
+<br>
 
 ## Running docker 
 
-If you want to try it out, you have to use `docker-compose up --build` command. After some time, everything should be working. Then, you have to navigate to `https://localhost/`
+If you want to try it out, you have to use `docker-compose up --build` command. After some time, everything should be working. Then, you have to navigate to `https://localhost/`.
