@@ -13,6 +13,7 @@ It is a project for one of college classes. The topic is to make application for
 - Google Authenticator,
 - HTML,
 - SCSS.
+<br>
 
 ## Features
 
