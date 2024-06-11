@@ -3,10 +3,10 @@
 It is a project for one of college classes. The topic is to make application for writing notes and saving it in a secured backend. The whole project is about security, and that's why backend part is the most important. 
 
 ## Table of Contents
-1. [Technologies](##Technologies)
-2. [Features](##Features)
-3. [Backend](##Backend)
-4. [Frontend](##Frontend)
+1. [Technologies](#Technologies)
+2. [Features](#Features)
+3. [Backend](#Backend)
+4. [Frontend](#Frontend)
 
 ## Technologies
 
